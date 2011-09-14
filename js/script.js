@@ -3,14 +3,20 @@ var etch = $('#etch canvas')[0],
     cur_x = 155.5, cur_y = 75.5, /* Center-ish */
     rot_x = rot_y = 0,
     path = {0: [cur_x, cur_y]}, i = 0,
-    current_direction = false;
+    current_direction = false,
+    has_local_storage;
+
+has_local_storage = supports_local_storage();
 
 context.strokeStyle = "rgba(90,90,90,0.9)";
 context.lineWidth = 0.5;
 
 function getURL() {
-  encoded = Base64.encode(JSON.stringify(path))
-  return "http://localhost:8001/#" + encoded;
+  return "http://localhost:8001/#" + getHash();
+}
+
+function getHash() {
+  return Base64.encode(JSON.stringify(path))
 }
 
 function drawLine(x, y) {
@@ -37,6 +43,11 @@ function drawLine(x, y) {
   context.lineTo(cur_x, cur_y);
   context.closePath();
   context.stroke();
+
+  /* Make this async! */
+  if(has_local_storage){
+    window.localStorage['path'] = getHash();
+  }
 }
 
 $(function() {
@@ -57,10 +68,21 @@ $(function() {
   });
 
   /* Saved one? */
-  var existing = location.hash.replace(/#/, '')
+  var existing = false;
+  if(has_local_storage){
+    existing = window.localStorage['path'];
+  }
+  if(location.hash && location.hash.length > 5) {
+    existing = location.hash.replace(/#/, '')
+  }
+
   if(existing) {
+    try {
     var existing_json = JSON.parse(Base64.decode(existing)),
         go_x, go_y;
+    } catch(e) {
+        return;
+    }
 
     $.each(existing_json, function(k, v) {
       context.beginPath();
@@ -124,3 +146,11 @@ drag: function(e){
   clearInterval(timer);
 }
 });
+
+function supports_local_storage() {
+    try {
+        return 'localStorage' in window && window['localStorage'] !== null;
+    } catch(e){
+        return false;
+    }
+}
