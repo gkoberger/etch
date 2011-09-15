@@ -70,6 +70,23 @@ body {
 .knob_l {
     left: 60px;
 }
+.about {
+    color: #D40019;
+    display: block;
+    font-size: 1.3em;
+    text-align: center;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.6),
+                 -1px -1px 1px rgba(255, 255, 255, 0.5);
+}
+.about a {
+    color: #D40019;
+    font-weight: bold;
+    -moz-transition: all 0.3s linear;
+    -webkit-transition: all 0.3s linear;
+}
+.about a:hover {
+    color: #B20006;
+}
 
 p {
     color: #CCCCCC;
@@ -90,3 +107,4 @@ p {
 .icons a:hover {
     opacity: 1;
 }
+

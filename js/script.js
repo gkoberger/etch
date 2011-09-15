@@ -57,6 +57,7 @@ function drawLine(x, y) {
         // New direction, so we need to add a new line.
         i++;
         current_direction = new_direction;
+        console.log(path);
     }
     // Update or add a new line.
     path[i] = [cur_x, cur_y];
@@ -120,6 +121,7 @@ $(function() {
         }
 
         // Draw all the lines.  TODO: combine this with above.
+        var highest_i;
         $.each(existing_json, function(k, v) {
             context.beginPath();
             context.moveTo(go_x, go_y);
@@ -130,12 +132,14 @@ $(function() {
 
             go_x = v[0];
             go_y = v[1];
+            highest_i = k;
         });
 
         // Set the starting points.
         path = existing_json;
         cur_x = go_x;
         cur_y = go_y;
+        i = parseInt(highest_i);
     }
 
     /* Sharing is caring */
@@ -203,6 +207,10 @@ $( "#etch" ).draggable({ revert: true, scroll: false,
             context.clearRect(0,0,1000,1000);
             path = {0: [cur_x, cur_y]};
             i = 0;
+            current_direction = false;
+            if(has_local_storage) {
+                window.localStorage['path'] = path;
+            }
         }
     },
     stop: function() {
