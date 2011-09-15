@@ -27,13 +27,12 @@ function getURL(hash) {
 }
 
 function getBitlyURL(callback) {
-    var saveas = "blob" + ~~(Math.random() * 100000),
+    var saveas = "blob" + Base64.encode("" + (new Date().getTime()) + ~~(Math.random() * 10000)),
         url = 'http://api.bitly.com/v3/shorten?login=' + BITLY_LOGIN + '&apiKey=' + BITLY_KEY + '&longUrl='+escape(getURL(saveas))+'&format=json'
     $.getJSON(url, function(d) {
         callback(d['data']['url']);
     });
 
-    // Change this!
     $.post('save.php', {'saveas': saveas, 'path': JSON.stringify(path)});
 }
 
