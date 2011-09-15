@@ -76,3 +76,17 @@ p {
     text-align: center;
     text-shadow: 2px 2px 1px #000000;
 }
+
+.icons {
+    bottom: 28px;
+    position: relative;
+    right: 12px;
+    text-align: right;
+}
+
+.icons a {
+    opacity: 0.8;
+}
+.icons a:hover {
+    opacity: 1;
+}

@@ -22,13 +22,13 @@ context.lineWidth = 0.5;
 
 /* Get a URL for the user. */
 function getURL() {
-    return window.location.href.split('#')[0] + getHash();
+    return window.location.href.split('#')[0] + '#' + getHash();
 }
 
 function getBitlyURL(callback) {
     var url = 'http://api.bitly.com/v3/shorten?login=' + BITLY_LOGIN + '&apiKey=' + BITLY_KEY + '&longUrl='+escape(getURL())+'&format=json'
     $.getJSON(url, function(d) {
-        console.log(d['data']['url']);
+        callback(d['data']['url']);
     });
 }
 
@@ -74,6 +74,9 @@ function drawLine(x, y) {
     if(has_local_storage){
         window.localStorage['path'] = getHash();
     }
+
+    // Reset hash
+    window.location.hash = '';
 }
 
 /* We're ready to go! */
@@ -134,6 +137,29 @@ $(function() {
         cur_x = go_x;
         cur_y = go_y;
     }
+
+    /* Sharing is caring */
+    $('.share_twitter').click(function() {
+        getBitlyURL(function(url){
+            var text = "Check out my Etch A Sketch drawing! " + url;
+            window.open("https://twitter.com/home?status=" + text);
+
+        });
+        return false; // No need to bubble
+    });
+    $('.share_facebook').click(function() {
+        getBitlyURL(function(url){
+            var text = "Check out my Etch A Sketch drawing! " + url;
+            window.open("http://facebook.com/sharer.php?u=" + url + "&t=" + text);
+        });
+        return false; // No need to bubble
+    });
+    $('.share_save').click(function() {
+        getBitlyURL(function(url){
+            prompt("Copy the below URL to save or share it!", url);
+        });
+        return false; // No need to bubble
+    });
 });
 
 /* Shake and bake */
