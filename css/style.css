@@ -103,6 +103,8 @@ p {
 
 .icons a {
     opacity: 0.8;
+    text-decoration: none;
+    cursor: pointer;
 }
 .icons a:hover {
     opacity: 1;
