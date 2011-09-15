@@ -93,6 +93,22 @@ footer {
     color: #CCCCCC;
     text-align: center;
     text-shadow: 2px 2px 1px #000000;
+    line-height: 1.5em;
+}
+
+footer div {
+    color: #888888;
+    padding: 5px 0 3em;
+    text-shadow: 0 0;
+}
+
+footer div a,
+footer div a:visited {
+    color: #AAA;
+    text-decoration: none;
+}
+footer div a:hover {
+    color: #999;
 }
 
 .icons {
