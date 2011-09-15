@@ -21,20 +21,26 @@ context.strokeStyle = "rgba(90,90,90,0.9)";
 context.lineWidth = 0.5;
 
 /* Get a URL for the user. */
-function getURL() {
-    return window.location.href.split('#')[0] + '#' + getHash();
+function getURL(hash) {
+    hash = hash || getHash();
+    return window.location.href.split('#')[0] + '#' + hash;
 }
 
 function getBitlyURL(callback) {
-    var url = 'http://api.bitly.com/v3/shorten?login=' + BITLY_LOGIN + '&apiKey=' + BITLY_KEY + '&longUrl='+escape(getURL())+'&format=json'
+    var saveas = "blob" + ~~(Math.random() * 100000),
+        url = 'http://api.bitly.com/v3/shorten?login=' + BITLY_LOGIN + '&apiKey=' + BITLY_KEY + '&longUrl='+escape(getURL(saveas))+'&format=json'
     $.getJSON(url, function(d) {
         callback(d['data']['url']);
     });
+
+    // Change this!
+    $.post('save.php', {'saveas': saveas, 'path': JSON.stringify(path)});
 }
 
 /* Get the hash from the path */
 function getHash() {
     return Base64.encode(JSON.stringify(path))
+
 }
 
 /* The user just pressed an arrow key. */
@@ -57,7 +63,6 @@ function drawLine(x, y) {
         // New direction, so we need to add a new line.
         i++;
         current_direction = new_direction;
-        console.log(path);
     }
     // Update or add a new line.
     path[i] = [cur_x, cur_y];
@@ -98,56 +103,11 @@ $(function() {
         e.preventDefault();
     });
 
-    /* Do we have a saved one? */
-    var existing = false;
-
-    // Check localStorage
-    if(has_local_storage){
-        existing = window.localStorage['path'];
-    }
-
-    // Check the hash
-    if(location.hash && location.hash.length > 5) {
-        existing = location.hash.replace(/#/, '')
-    }
-
-    // We found something!
-    if(existing) {
-        try {
-            var existing_json = JSON.parse(Base64.decode(existing)),
-            go_x, go_y;
-        } catch(e) {
-            return; // We couldn't parse it.  Ah well, we tried.
-        }
-
-        // Draw all the lines.  TODO: combine this with above.
-        var highest_i;
-        $.each(existing_json, function(k, v) {
-            context.beginPath();
-            context.moveTo(go_x, go_y);
-
-            context.lineTo(v[0], v[1]);
-            context.closePath();
-            context.stroke();
-
-            go_x = v[0];
-            go_y = v[1];
-            highest_i = k;
-        });
-
-        // Set the starting points.
-        path = existing_json;
-        cur_x = go_x;
-        cur_y = go_y;
-        i = parseInt(highest_i);
-    }
-
     /* Sharing is caring */
     $('.share_twitter').click(function() {
         getBitlyURL(function(url){
             var text = "Check out my Etch A Sketch drawing! " + url;
             window.open("https://twitter.com/home?status=" + text);
-
         });
         return false; // No need to bubble
     });
@@ -164,6 +124,23 @@ $(function() {
         });
         return false; // No need to bubble
     });
+
+    /* Do we have a saved one? */
+    var existing = false;
+
+    // Check localStorage
+    if(has_local_storage){
+        load_existing(window.localStorage['path']);
+    }
+    // Check the hash
+    else if(location.hash && location.hash.length > 5) {
+        existing = location.hash.replace(/#/, '')
+        if(existing.match(/^blob/)) {
+            $.get('saved/' + existing + '.json', load_existing);
+        } else {
+            load_existing(window.localStorage['path']);
+        }
+    }
 });
 
 /* Shake and bake */
@@ -228,5 +205,41 @@ function supports_local_storage() {
         return 'localStorage' in window && window['localStorage'] !== null;
     } catch(e){
         return false;
+    }
+}
+
+function load_existing(existing) {
+    // We found something!
+    if(existing) {
+        var go_x, go_y;
+
+        if(typeof existing != 'object') {
+            try {
+                existing = JSON.parse(Base64.decode(existing));
+            } catch(e) {
+                return; // We couldn't parse it.  Ah well, we tried.
+            }
+        }
+
+        // Draw all the lines.  TODO: combine this with above.
+        var highest_i;
+        $.each(existing, function(k, v) {
+            context.beginPath();
+            context.moveTo(go_x, go_y);
+
+            context.lineTo(v[0], v[1]);
+            context.closePath();
+            context.stroke();
+
+            go_x = v[0];
+            go_y = v[1];
+            highest_i = k;
+        });
+
+        // Set the starting points.
+        path = existing;
+        cur_x = go_x;
+        cur_y = go_y;
+        i = parseInt(highest_i);
     }
 }
