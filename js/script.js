@@ -6,7 +6,7 @@ var BITLY_KEY = 'R_8b5e8127ed157acdadf27cf23109c570',
 var etch = $('#etch canvas')[0],
     context = etch.getContext('2d'),
     /* Center at first */
-    cur_x = 155.5, cur_y = 75.5,
+    cur_x = 350, cur_y = 200,
     /* Rotation for knobs */
     rot_x = rot_y = 0,
     /* The path object (and current index) */
@@ -17,8 +17,8 @@ var etch = $('#etch canvas')[0],
     has_local_storage = supports_local_storage();
 
 /* Set up the line color and width */
-context.strokeStyle = "rgba(90,90,90,0.9)";
-context.lineWidth = 0.5;
+context.strokeStyle = "rgba(90,90,90,0.75)";
+context.lineWidth = 1.5;
 
 /* Get a URL for the user. */
 function getURL(hash) {
@@ -39,7 +39,6 @@ function getBitlyURL(callback) {
 /* Get the hash from the path */
 function getHash() {
     return Base64.encode(JSON.stringify(path))
-
 }
 
 /* The user just pressed an arrow key. */
@@ -49,12 +48,23 @@ function drawLine(x, y) {
     context.moveTo(cur_x, cur_y);
 
     // Set the new new location.
-    cur_x += 2 * x;
-    cur_y += 2 * y;
+    cur_x += 3 * x;
+    cur_y += 3 * y;
 
     // Set the rotation of the knobs.
     rot_x += 1 * x;
     rot_y += 1 * y;
+
+    // Limit!
+    if(cur_x <= 0) {
+        cur_x = 0;
+    } else if(cur_y <= 0) {
+        cur_y = 0;
+    } else if(cur_x >= 700) {
+        cur_x = 700;
+    } else if(cur_y >= 400) {
+        cur_y = 400;
+    }
 
     // Set the direction the user is currently drawing.
     var new_direction = x + "--" + y;
@@ -265,8 +275,8 @@ function load_existing(existing) {
 
         // Set the starting points.
         path = existing;
-        cur_x = go_x;
-        cur_y = go_y;
+        cur_x = ~~go_x;
+        cur_y = ~~go_y;
         i = parseInt(highest_i);
     }
 }
