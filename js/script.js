@@ -1,3 +1,8 @@
+/* Constants */
+var BITLY_KEY = 'R_8b5e8127ed157acdadf27cf23109c570',
+    BITLY_LOGIN = 'gkoberger';
+
+/* Local vars */
 var etch = $('#etch canvas')[0],
     context = etch.getContext('2d'),
     /* Center at first */
@@ -17,7 +22,14 @@ context.lineWidth = 0.5;
 
 /* Get a URL for the user. */
 function getURL() {
-    return "http://localhost:8001/#" + getHash();
+    return window.location.href.split('#')[0] + getHash();
+}
+
+function getBitlyURL(callback) {
+    var url = 'http://api.bitly.com/v3/shorten?login=' + BITLY_LOGIN + '&apiKey=' + BITLY_KEY + '&longUrl='+escape(getURL())+'&format=json'
+    $.getJSON(url, function(d) {
+        console.log(d['data']['url']);
+    });
 }
 
 /* Get the hash from the path */
