@@ -42,14 +42,15 @@ function getHash() {
 }
 
 /* The user just pressed an arrow key. */
-function drawLine(x, y) {
+function drawLine(x, y, e) {
     // Set up the path stuff
     context.beginPath();
     context.moveTo(cur_x, cur_y);
 
     // Set the new new location.
-    cur_x += 3 * x;
-    cur_y += 3 * y;
+    var shift = e.shiftKey;
+    cur_x += 3 * x * (shift ? 4 : 1);
+    cur_y += 3 * y * (shift ? 4 : 1);
 
     // Set the rotation of the knobs.
     rot_x += 1 * x;
@@ -98,13 +99,13 @@ function drawLine(x, y) {
 $(function() {
     $(document).keydown(function(e) {
         if(e.keyCode == jQuery.ui.keyCode.RIGHT) {
-            drawLine(1, 0);
+            drawLine(1, 0, e);
         } else if(e.keyCode == jQuery.ui.keyCode.LEFT) {
-            drawLine(-1, 0);
+            drawLine(-1, 0, e);
         } else if(e.keyCode == jQuery.ui.keyCode.UP) {
-            drawLine(0, -1);
+            drawLine(0, -1, e);
         } else if(e.keyCode == jQuery.ui.keyCode.DOWN) {
-            drawLine(0, 1);
+            drawLine(0, 1, e);
         } else {
             return; // Not an arrow key; carry on!
         }
@@ -191,6 +192,7 @@ $( "#etch" ).draggable({ revert: true, scroll: false,
         // If the modal has changed directions 4+ times, reset.
         if(total_x >= 4 || total_y >= 4) {
             // TODO: create a new "Clear" function.
+            document.getElementById('swoosh').play();
             context.clearRect(0,0,1000,1000);
             path = {0: [cur_x, cur_y]};
             i = 0;
