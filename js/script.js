@@ -192,6 +192,7 @@ $( "#etch" ).draggable({ revert: true, scroll: false,
         // If the modal has changed directions 4+ times, reset.
         if(total_x >= 4 || total_y >= 4) {
             // TODO: create a new "Clear" function.
+            location.hash = '';
             document.getElementById('swoosh').play();
             context.clearRect(0,0,1000,1000);
             path = {0: [cur_x, cur_y]};
