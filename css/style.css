@@ -81,6 +81,7 @@ body {
 .about a {
     color: #D40019;
     font-weight: bold;
+    text-decoration: none;
     -moz-transition: all 0.3s linear;
     -webkit-transition: all 0.3s linear;
 }
