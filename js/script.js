@@ -127,12 +127,8 @@ $(function() {
     /* Do we have a saved one? */
     var existing = false;
 
-    // Check localStorage
-    if(has_local_storage){
-        load_existing(window.localStorage['path']);
-    }
     // Check the hash
-    else if(location.hash && location.hash.length > 5) {
+    if(location.hash && location.hash.length > 5) {
         existing = location.hash.replace(/#/, '')
         if(existing.match(/^blob/)) {
             $.get('saved/' + existing + '.json', load_existing);
@@ -140,6 +136,11 @@ $(function() {
             load_existing(window.localStorage['path']);
         }
     }
+    // Check localStorage
+    else if(has_local_storage){
+        load_existing(window.localStorage['path']);
+    }
+
 });
 
 /* Shake and bake */
