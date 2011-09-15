@@ -143,7 +143,7 @@ $(function() {
 
 });
 
-/* Shake and bake */
+/* Shake and bake (DOM) */
 var pos_x = pos_y = false,
     direction_x = direction_y = 0,
     total_x = total_y = 0,
@@ -198,6 +198,33 @@ $( "#etch" ).draggable({ revert: true, scroll: false,
         clearInterval(timer);
     }
 });
+
+/* Device Orientation Shake */
+// By Jeffrey Harrell, because my Air doesn't have an
+// accelerometer.
+
+if (typeof window.DeviceMotionEvent != 'undefined') {
+        var sensitivity = 20;
+        var x1 = 0, y1 = 0, z1 = 0, x2 = 0, y2 = 0, z2 = 0;
+
+        window.addEventListener('devicemotion', function (e) {
+            x1 = e.accelerationIncludingGravity.x;
+            y1 = e.accelerationIncludingGravity.y;
+            z1 = e.accelerationIncludingGravity.z;
+        }, false);
+        setInterval(function () {
+            var change = Math.abs(x1-x2+y1-y2+z1-z2);
+
+            if (change > sensitivity) {
+                alert('Shake!');
+            }
+
+            // Update new position
+            x2 = x1;
+            y2 = y1;
+            z2 = z1;
+        }, 150);
+}
 
 // Does it support local storage?
 function supports_local_storage() {
