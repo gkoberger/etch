@@ -102,6 +102,11 @@ footer div {
     text-shadow: 0 0;
 }
 
+footer p {
+    margin: 0;
+    padding: 0;
+}
+
 footer p a,
 footer p a:visited {
     color: #AAA;
