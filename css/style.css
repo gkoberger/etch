@@ -102,12 +102,12 @@ footer div {
     text-shadow: 0 0;
 }
 
-footer div a,
-footer div a:visited {
+footer p a,
+footer p a:visited {
     color: #AAA;
     text-decoration: none;
 }
-footer div a:hover {
+footer p a:hover {
     color: #999;
 }
 

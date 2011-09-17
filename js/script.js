@@ -14,7 +14,12 @@ var etch = $('#etch canvas')[0],
     /* Current direction the user is drawing */
     current_direction = false,
     /* Does this have localStorage? */
-    has_local_storage = supports_local_storage();
+    has_local_storage = supports_local_storage(),
+    /* Device orientation variables */
+    lr = fb = lr_old = fb_old = 0,
+    /* How sensitive should the shaking be? */
+    sensitivity = 30;
+
 
 /* Set up the line color and width */
 context.strokeStyle = "rgba(90,90,90,0.75)";
@@ -152,6 +157,22 @@ $(function() {
         load_existing(window.localStorage['path']);
     }
 
+    /* Device Orientation Shake */
+    // Somewhat based on code by Jeffery Harrell and HTML5Rocks.
+    if (window.DeviceOrientationEvent) {
+        $(window).bind('deviceorientation', function(e) {
+            var oe = e.originalEvent;
+            movement(oe.gamma, oe.beta);
+        });
+    } else if (window.OrientationEvent) {
+        $(window).bind('MozOrientation', function(e) {
+            var oe = e.originalEvent;
+            movement(oe.x * 90, oe.y * -90);
+        });
+    } else {
+        $('#orientation_supported').remove();
+    }
+
 });
 
 /* Shake and bake (DOM) */
@@ -191,16 +212,7 @@ $( "#etch" ).draggable({ revert: true, scroll: false,
 
         // If the modal has changed directions 4+ times, reset.
         if(total_x >= 4 || total_y >= 4) {
-            // TODO: create a new "Clear" function.
-            location.hash = '';
-            document.getElementById('swoosh').play();
-            context.clearRect(0,0,1000,1000);
-            path = {0: [cur_x, cur_y]};
-            i = 0;
-            current_direction = false;
-            if(has_local_storage) {
-                window.localStorage['path'] = path;
-            }
+            clearEtch();
         }
     },
     stop: function() {
@@ -212,31 +224,28 @@ $( "#etch" ).draggable({ revert: true, scroll: false,
     }
 });
 
-/* Device Orientation Shake */
-// By Jeffrey Harrell, because my Air doesn't have an
-// accelerometer.
+function movement(lr, fb) {
+    var change = Math.abs(lr-lr_old+fb-fb_old);
 
-if (typeof window.DeviceMotionEvent != 'undefined') {
-        var sensitivity = 20;
-        var x1 = 0, y1 = 0, z1 = 0, x2 = 0, y2 = 0, z2 = 0;
+    if (change > sensitivity) {
+        clearEtch();
+    }
 
-        window.addEventListener('devicemotion', function (e) {
-            x1 = e.accelerationIncludingGravity.x;
-            y1 = e.accelerationIncludingGravity.y;
-            z1 = e.accelerationIncludingGravity.z;
-        }, false);
-        setInterval(function () {
-            var change = Math.abs(x1-x2+y1-y2+z1-z2);
+    lr_old = lr;
+    fb_old = fb;
+}
 
-            if (change > sensitivity) {
-                alert('Shake!');
-            }
-
-            // Update new position
-            x2 = x1;
-            y2 = y1;
-            z2 = z1;
-        }, 150);
+function clearEtch() {
+    if(i == 0) return; // Already clear.
+    location.hash = '';
+    document.getElementById('swoosh').play();
+    context.clearRect(0,0,1000,1000);
+    path = {0: [cur_x, cur_y]};
+    i = 0;
+    current_direction = false;
+    if(has_local_storage) {
+        window.localStorage['path'] = path;
+    }
 }
 
 // Does it support local storage?
