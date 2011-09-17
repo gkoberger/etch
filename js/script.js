@@ -16,7 +16,7 @@ var etch = $('#etch canvas')[0],
     /* Does this have localStorage? */
     has_local_storage = supports_local_storage(),
     /* Device orientation variables */
-    lr = fb = lr_old = fb_old = 0,
+    old_arguments = false,
     /* How sensitive should the shaking be? */
     sensitivity = 30;
 
@@ -159,7 +159,14 @@ $(function() {
 
     /* Device Orientation Shake */
     // Somewhat based on code by Jeffery Harrell and HTML5Rocks.
-    if (window.DeviceOrientationEvent) {
+    if(window.DeviceMotionEvent) {
+        $(window).bind("devicemotion", function(e){
+            var oe = e.originalEvent;
+            movement(oe.accelerationIncludingGravity.x * 30,
+                     oe.accelerationIncludingGravity.y * 30,
+                     oe.accelerationIncludingGravity.z * 30)
+        });
+    } else if (window.DeviceOrientationEvent) {
         $(window).bind('deviceorientation', function(e) {
             var oe = e.originalEvent;
             movement(oe.gamma, oe.beta);
@@ -224,15 +231,19 @@ $( "#etch" ).draggable({ revert: true, scroll: false,
     }
 });
 
-function movement(lr, fb) {
-    var change = Math.abs(lr-lr_old+fb-fb_old);
+function movement() {
+    var change = 0;
+    if(old_arguments) {
+        for(var l=0; l<arguments.length; l++) {
+            change += arguments[l];
+            change -= old_arguments[l];
+        }
 
-    if (change > sensitivity) {
-        clearEtch();
+        if (Math.abs(change) > 10 * arguments.length) {
+            clearEtch();
+        }
     }
-
-    lr_old = lr;
-    fb_old = fb;
+    old_arguments = arguments;
 }
 
 function clearEtch() {
